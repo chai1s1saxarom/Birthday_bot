@@ -3,14 +3,12 @@ import asyncpg
 from datetime import date
 from typing import List, Tuple, Optional
 
-# Глобальный пул соединений (инициализируется при старте)
 _pool: Optional[asyncpg.Pool] = None
 
 async def init_db_pool(dsn: str):
     """Создаёт пул соединений к PostgreSQL и создаёт таблицу, если её нет."""
     global _pool
     _pool = await asyncpg.create_pool(dsn=dsn, min_size=1, max_size=10)
-    # Создаём таблицу, если не существует
     async with _pool.acquire() as conn:
         await conn.execute('''
             CREATE TABLE IF NOT EXISTS birthdays (
@@ -26,7 +24,6 @@ async def close_db_pool():
     if _pool:
         await _pool.close()
 
-# Вспомогательная функция для получения соединения из пула
 def _get_connection():
     if _pool is None:
         raise RuntimeError("Database pool not initialized. Call init_db_pool() first.")
@@ -45,7 +42,6 @@ async def delete_birthday(user_id: int, name: str) -> int:
             "DELETE FROM birthdays WHERE user_id = $1 AND name = $2",
             user_id, name
         )
-        # asyncpg возвращает строку типа "DELETE 1", парсим число
         return int(result.split()[-1])
 
 async def get_birthdays(user_id: int) -> List[Tuple[str, str]]:

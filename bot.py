@@ -17,7 +17,7 @@ def parse_date(date_str: str) -> date | None:
     try:
         parsed = datetime.strptime(date_str, "%d.%m.%Y").date()
         if parsed > date.today():
-            return None  # Будущая дата запрещена
+            return None  
         return parsed
     except ValueError:
         return None
@@ -77,7 +77,6 @@ async def cmd_add(message: Message):
         await message.answer("Имя не должно быть пустым.")
         return
 
-    # Проверка дубликата имени
     if await db.exists_name(message.from_user.id, name):
         await message.answer(f"Запись с именем '{name}' уже существует. Используйте /edit.")
         return
@@ -138,7 +137,6 @@ async def cmd_edit(message: Message):
         )
         return
 
-    # Проверяем, существует ли имя
     if not await db.exists_name(message.from_user.id, name):
         await message.answer(f"Запись для '{name}' не найдена.")
         return
@@ -169,7 +167,6 @@ async def cmd_list(message: Message):
     await message.answer("Ваши дни рождения:\n" + "\n".join(lines))
 
 
-# 
 # async def main():
 #     await db.init_db()
 #     asyncio.create_task(reminder_worker())
